@@ -97,5 +97,9 @@ export declare class Corridor extends Feature {
      */
     create(digCallback: DigCallback): boolean;
     createPriorityWalls(priorityWallCallback: (x: number, y: number) => void): void;
+    getStartX(): number;
+    getStartY(): number;
+    getEndX(): number;
+    getEndY(): number;
 }
 export {};
