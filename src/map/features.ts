@@ -61,16 +61,16 @@ export class Room extends Feature {
 		let min = options.roomWidth[0];
 		let max = options.roomWidth[1];
 		let width = RNG.getUniformInt(min, max);
-		
+
 		min = options.roomHeight[0];
 		max = options.roomHeight[1];
 		let height = RNG.getUniformInt(min, max);
-		
+
 		if (dx == 1) { /* to the right */
 			let y2 = y - Math.floor(RNG.getUniform() * height);
 			return new this(x+1, y2, x+width, y2+height-1, x, y);
 		}
-		
+
 		if (dx == -1) { /* to the left */
 			let y2 = y - Math.floor(RNG.getUniform() * height);
 			return new this(x-width, y2, x-1, y2+height-1, x, y);
@@ -96,7 +96,7 @@ export class Room extends Feature {
 		let min = options.roomWidth[0];
 		let max = options.roomWidth[1];
 		let width = RNG.getUniformInt(min, max);
-		
+
 		min = options.roomHeight[0];
 		max = options.roomHeight[1];
 		let height = RNG.getUniformInt(min, max);
@@ -116,11 +116,11 @@ export class Room extends Feature {
 		let min = options.roomWidth[0];
 		let max = options.roomWidth[1];
 		let width = RNG.getUniformInt(min, max);
-		
+
 		min = options.roomHeight[0];
 		max = options.roomHeight[1];
 		let height = RNG.getUniformInt(min, max);
-		
+
 		let left = availWidth - width - 1;
 		let top = availHeight - height - 1;
 
@@ -175,12 +175,12 @@ export class Room extends Feature {
 		console.log("room", this._x1, this._y1, this._x2, this._y2);
 	}
 
-	isValid(isWallCallback: TestPositionCallback, canBeDugCallback: TestPositionCallback) { 
+	isValid(isWallCallback: TestPositionCallback, canBeDugCallback: TestPositionCallback) {
 		let left = this._x1-1;
 		let right = this._x2+1;
 		let top = this._y1-1;
 		let bottom = this._y2+1;
-		
+
 		for (let x=left; x<=right; x++) {
 			for (let y=top; y<=bottom; y++) {
 				if (x == left || x == right || y == top || y == bottom) {
@@ -197,12 +197,12 @@ export class Room extends Feature {
 	/**
 	 * @param {function} digCallback Dig callback with a signature (x, y, value). Values: 0 = empty, 1 = wall, 2 = door. Multiple doors are allowed.
 	 */
-	create(digCallback: DigCallback) { 
+	create(digCallback: DigCallback) {
 		let left = this._x1-1;
 		let right = this._x2+1;
 		let top = this._y1-1;
 		let bottom = this._y2+1;
-		
+
 		let value = 0;
 		for (let x=left; x<=right; x++) {
 			for (let y=top; y<=bottom; y++) {
@@ -247,7 +247,7 @@ export class Corridor extends Feature {
 		super();
 		this._startX = startX;
 		this._startY = startY;
-		this._endX = endX; 
+		this._endX = endX;
 		this._endY = endY;
 		this._endsWithAWall = true;
 	}
@@ -256,7 +256,7 @@ export class Corridor extends Feature {
 		let min = options.corridorLength[0];
 		let max = options.corridorLength[1];
 		let length = RNG.getUniformInt(min, max);
-		
+
 		return new this(x, y, x + dx*length, y + dy*length);
 	}
 
@@ -264,18 +264,18 @@ export class Corridor extends Feature {
 		console.log("corridor", this._startX, this._startY, this._endX, this._endY);
 	}
 
-	isValid(isWallCallback: TestPositionCallback, canBeDugCallback: TestPositionCallback){ 
+	isValid(isWallCallback: TestPositionCallback, canBeDugCallback: TestPositionCallback){
 		let sx = this._startX;
 		let sy = this._startY;
 		let dx = this._endX-sx;
 		let dy = this._endY-sy;
 		let length = 1 + Math.max(Math.abs(dx), Math.abs(dy));
-		
+
 		if (dx) { dx = dx/Math.abs(dx); }
 		if (dy) { dy = dy/Math.abs(dy); }
 		let nx = dy;
 		let ny = -dx;
-		
+
 		let ok = true;
 		for (let i=0; i<length; i++) {
 			let x = sx + i*dx;
@@ -284,7 +284,7 @@ export class Corridor extends Feature {
 			if (!canBeDugCallback(     x,      y)) { ok = false; }
 			if (!isWallCallback  (x + nx, y + ny)) { ok = false; }
 			if (!isWallCallback  (x - nx, y - ny)) { ok = false; }
-			
+
 			if (!ok) {
 				length = i;
 				this._endX = x-dx;
@@ -292,26 +292,26 @@ export class Corridor extends Feature {
 				break;
 			}
 		}
-		
+
 		/**
 		 * If the length degenerated, this corridor might be invalid
 		 */
-		 
+
 		/* not supported */
-		if (length == 0) { return false; } 
-		
+		if (length == 0) { return false; }
+
 		 /* length 1 allowed only if the next space is empty */
 		if (length == 1 && isWallCallback(this._endX + dx, this._endY + dy)) { return false; }
-		
+
 		/**
 		 * We do not want the corridor to crash into a corner of a room;
 		 * if any of the ending corners is empty, the N+1th cell of this corridor must be empty too.
-		 * 
+		 *
 		 * Situation:
 		 * #######1
 		 * .......?
 		 * #######2
-		 * 
+		 *
 		 * The corridor was dug from left to right.
 		 * 1, 2 - problematic corners, ? = N+1th cell (not dug)
 		 */
@@ -326,22 +326,22 @@ export class Corridor extends Feature {
 	/**
 	 * @param {function} digCallback Dig callback with a signature (x, y, value). Values: 0 = empty.
 	 */
-	create(digCallback: DigCallback) { 
+	create(digCallback: DigCallback) {
 		let sx = this._startX;
 		let sy = this._startY;
 		let dx = this._endX-sx;
 		let dy = this._endY-sy;
 		let length = 1+Math.max(Math.abs(dx), Math.abs(dy));
-		
+
 		if (dx) { dx = dx/Math.abs(dx); }
 		if (dy) { dy = dy/Math.abs(dy); }
-		
+
 		for (let i=0; i<length; i++) {
 			let x = sx + i*dx;
 			let y = sy + i*dy;
 			digCallback(x, y, 0);
 		}
-		
+
 		return true;
 	}
 
@@ -362,4 +362,9 @@ export class Corridor extends Feature {
 		priorityWallCallback(this._endX + nx, this._endY + ny);
 		priorityWallCallback(this._endX - nx, this._endY - ny);
 	}
+
+	getStartX(): number { return this._startX; }
+	getStartY(): number { return this._startY; }
+	getEndX(): number { return this._endX; }
+	getEndY(): number { return this._endY; }
 }
