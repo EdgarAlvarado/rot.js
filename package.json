@@ -34,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ondras/rot.js.git"
+    "url": "https://github.com/EdgarAlvarado/rot.js.git"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
